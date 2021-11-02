@@ -1,6 +1,6 @@
 import os
 
-dataset_root_dir = '/Users/juliaxu/Documents/F2021/CS330/project/dataset/'
+dataset_root_dir = '/Users/sarthak/Documents/Autumn 2020-21/CS330/Course Project/FLITE/data/orbit_benchmark_224/'
 for subdir, dirs, files in os.walk(dataset_root_dir):
     for i, img in enumerate(sorted(files)):
         if i % 10 != 0:
