@@ -268,7 +268,13 @@ class Learner:
     def test(self, path):
 
         self.init_model()
-        self.model.load_state_dict(torch.load(path, map_location=self.map_location)) 
+
+        if self.args.from_checkpoint:
+            checkpoint = torch.load(path, map_location=self.map_location)
+            self.model.load_state_dict(checkpoint['model_state_dict'])
+        else:
+            self.model.load_state_dict(torch.load(path, map_location=self.map_location))
+
         self.model.set_test_mode(True)
         self.ops_counter.set_base_params(self.model)
 

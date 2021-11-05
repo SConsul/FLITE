@@ -22,7 +22,7 @@ class DatasetQueue:
         self.tasks_per_user = tasks_per_user
         self.shuffle = shuffle
         self.test_mode = test_mode
-        self.num_workers = 4 if self.test_mode else 8
+        self.num_workers = 2 if self.test_mode else 4
         self.num_users = None
         self.collate_fn = self.squeeze
 

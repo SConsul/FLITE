@@ -104,6 +104,10 @@ def parse_args(learner='default'):
     parser.add_argument("--print_by_step", action="store_true",
                         help="Print training by step (otherwise print by epoch).")
 
+    # custom parameters
+    parser.add_argument("--from_checkpoint", action="store_true",
+                        help="Load from model_path an intermediate checkpoint (for testing)")
+
     # specific parameters
     if learner == 'gradient-learner':
         parser.add_argument("--num_grad_steps", type=int, required=True,
