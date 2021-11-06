@@ -4,6 +4,7 @@
 import os
 import sys
 from datetime import datetime
+from torch.utils import tensorboard
 
 def print_and_log(log_file, message):
     print(message)
@@ -45,3 +46,16 @@ def stats_to_str(stats):
         else:
             s+='{0:}: {1:.2f} '.format(stat, scores*100)
     return s
+
+def get_tensorboard_writer(log_dir):
+    log_dir = os.path.join(log_dir, datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
+    os.makedirs(log_dir)
+
+    writer = tensorboard.SummaryWriter(log_dir=log_dir)
+
+    return writer
+
+def tensorboard_log(writer, loss, step, current_stats):
+    writer.add_scalar('loss/train', loss.item(), step)
+    for stats in current_stats:
+        writer.add_scalar(str(stats) + '/eval', current_stats[stats], step)

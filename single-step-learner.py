@@ -41,7 +41,7 @@ from utils.args import parse_args
 from utils.ops_counter import OpsCounter
 from utils.optim import cross_entropy, init_optimizer
 from utils.data import get_clip_loader, unpack_task, attach_frame_history
-from utils.logging import print_and_log, get_log_files, stats_to_str
+from utils.logging import print_and_log, get_log_files, stats_to_str, get_tensorboard_writer, tensorboard_log
 from utils.eval_metrics import TrainEvaluator, ValidationEvaluator, TestEvaluator
 
 SEED=1991
@@ -60,6 +60,8 @@ class Learner:
 
         self.checkpoint_dir, self.logfile, self.checkpoint_path_validation, self.checkpoint_path_final \
             = get_log_files(self.args.checkpoint_dir, self.args.model_path)
+        
+        self.tensorboard_writer = get_tensorboard_writer(self.args.log_dir)
 
         print_and_log(self.logfile, "Options: %s\n" % self.args)
         print_and_log(self.logfile, "Checkpoint Directory: %s\n" % self.checkpoint_dir) 
@@ -146,6 +148,9 @@ class Learner:
                     task_loss = self.train_task_fn(task_dict)
                     task_time = time.time() - t1
                     losses.append(task_loss.detach())
+
+                    # Log to tensorboard
+                    tensorboard_log(self.tensorboard_writer, task_loss, step, self.train_evaluator.get_current_stats())
                     
                     if self.args.print_by_step:
                         current_stats_str = stats_to_str(self.train_evaluator.get_current_stats())

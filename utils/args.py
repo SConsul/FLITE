@@ -106,7 +106,9 @@ def parse_args(learner='default'):
 
     # custom parameters
     parser.add_argument("--from_checkpoint", action="store_true",
-                        help="Load from model_path an intermediate checkpoint (for testing)")
+                        help="Load from model_path an intermediate checkpoint (for testing).")
+    parser.add_argument("--log_dir", default='./logs',
+                        help="Directory to save tensorboard logs to.")
 
     # specific parameters
     if learner == 'gradient-learner':
