@@ -1,0 +1,26 @@
+Options: Namespace(adapt_features=True, batch_normalisation='basic', batch_size=4, checkpoint_dir='./checkpoint', classifier='versa', clip_length=4, context_shot=5, context_video_type='clean', data_path='../dataset/orbit_benchmark_224', epochs=10, feature_adaptation_method='generate', feature_extractor='efficientnetb0', frame_size=224, gpu=0, learn_extractor=False, learning_rate=0.0001, mode='test', model_path='checkpoint/runorbit_v2/2021-11-02-22-07-56/checkpoint.pt', no_preload_clips=False, num_lite_samples=4, preload_clips=True, pretrained_extractor_path='features/pretrained/efficientnetb0_imagenet_224.pth', print_by_step=True, subsample_factor=1, target_shot=2, target_video_type='clutter', tasks_per_batch=16, test_context_num_clips=8, test_context_shot_method='max', test_set='test', test_target_num_clips='max', test_target_shot_method='max', test_tasks_per_user=5, test_way_method='max', train_context_num_clips=4, train_context_shot_method='random', train_object_cap=15, train_target_num_clips=4, train_target_shot_method='random', train_task_type='user_centric', train_tasks_per_user=50, train_way_method='random', use_two_gpus=False, validation_on_epoch=5, with_lite=True, with_train_shot_caps=False)
+
+Checkpoint Directory: ./checkpoint/2021-11-04-17-51-33
+
+test user 1/17 stats: frame_acc: 87.16 (5.11) frames_to_recognition: 1.59 (1.29) video_acc: 100.00 (0.00) 
+test user 2/17 stats: frame_acc: 50.00 (6.29) frames_to_recognition: 6.30 (4.51) video_acc: 76.00 (11.84) 
+test user 3/17 stats: frame_acc: 59.30 (3.46) frames_to_recognition: 18.02 (3.14) video_acc: 63.15 (4.48) 
+test user 4/17 stats: frame_acc: 44.89 (8.12) frames_to_recognition: 22.66 (8.82) video_acc: 53.33 (12.62) 
+test user 5/17 stats: frame_acc: 68.38 (9.58) frames_to_recognition: 21.87 (9.96) video_acc: 76.92 (10.24) 
+test user 6/17 stats: frame_acc: 99.67 (0.28) frames_to_recognition: 0.00 (0.00) video_acc: 100.00 (0.00) 
+test user 7/17 stats: frame_acc: 73.37 (10.02) frames_to_recognition: 16.67 (9.43) video_acc: 75.00 (10.96) 
+test user 8/17 stats: frame_acc: 62.73 (10.26) frames_to_recognition: 16.34 (7.85) video_acc: 63.64 (12.71) 
+test user 9/17 stats: frame_acc: 95.61 (2.62) frames_to_recognition: 0.00 (0.00) video_acc: 97.65 (3.22) 
+test user 10/17 stats: frame_acc: 67.58 (5.12) frames_to_recognition: 3.34 (2.51) video_acc: 96.00 (5.43) 
+test user 11/17 stats: frame_acc: 72.83 (7.58) frames_to_recognition: 5.50 (3.06) video_acc: 68.00 (12.93) 
+test user 12/17 stats: frame_acc: 70.77 (8.68) frames_to_recognition: 11.67 (7.05) video_acc: 78.46 (9.99) 
+test user 13/17 stats: frame_acc: 59.04 (7.99) frames_to_recognition: 39.91 (8.07) video_acc: 62.40 (8.49) 
+test user 14/17 stats: frame_acc: 63.27 (10.57) frames_to_recognition: 14.09 (9.87) video_acc: 75.00 (13.42) 
+test user 15/17 stats: frame_acc: 55.65 (6.50) frames_to_recognition: 18.21 (6.10) video_acc: 60.00 (7.97) 
+test user 16/17 stats: frame_acc: 62.46 (7.75) frames_to_recognition: 5.13 (5.09) video_acc: 75.38 (10.47) 
+test user 17/17 stats: frame_acc: 39.73 (4.46) frames_to_recognition: 4.76 (2.01) video_acc: 52.73 (13.19) 
+test [checkpoint/runorbit_v2/2021-11-02-22-07-56/checkpoint.pt]
+ per-user stats: frame_acc: 66.61 (7.48) frames_to_recognition: 12.12 (4.83) video_acc: 74.92 (7.19) 
+ per-video stats: frame_acc: 63.92 (1.86) frames_to_recognition: 15.37 (1.65) video_acc: 70.33 (2.31) 
+ model stats: MACs to personalise: 1.88T (517.04G) time to personalise: 4.43s (1.22s) #learnable params 10.59M (feature extractor: 4.01M, classifier: 4.92M, feature adapter: 1.51M, set encoder: 150.14K)
+
