@@ -36,12 +36,12 @@ class Blur:
         clip_blur = sum(clip_blur_list) / len(clip_blur_list)
         return clip_blur
     
-    # Filter top k least blurry images and return their idxs
-    def get_least_blurry(self, k_val):
+    # Returns idxs of clips in batch by decreasing order of blur score
+    # Therefore, first k clips in batch will be least blurry
+    def get_ranked_blur_scores(self):
         input_blur_list = list()
         for tensor_clip in self.images:
             clip_blur_score = self.compute_clip_blur(tensor_clip)
             input_blur_list.append(clip_blur_score)
         sorted_idxs = sorted(range(len(input_blur_list)), key=lambda i: input_blur_list[i], reverse=True)
-        top_k_idxs = sorted_idxs[:k_val]
-        return top_k_idxs
+        return sorted_idxs
