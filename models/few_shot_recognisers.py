@@ -43,6 +43,8 @@ from models.classifiers import LinearClassifier, VersaClassifier, PrototypicalCl
 from utils.optim import init_optimizer
 from utils.data import get_clip_loader
 
+from scripts.heuristics import Blur
+
 class FewShotRecogniser(nn.Module):
     """
     Generic few-shot classification model.
@@ -428,8 +430,12 @@ class SingleStepFewShotRecogniser(FewShotRecogniser):
         :param context_labels: (torch.Tensor) Video-level labels for each context clip.
         :return: Nothing.
         """ 
-        shuffled_idxs = np.random.permutation(len(context_clips))
         H = self.args.num_lite_samples
+        if self.args.blur_heuristic:
+            blur_ranker = Blur(context_clips)
+            shuffled_idxs = blur_ranker.get_ranked_blur_scores()
+        else:
+            shuffled_idxs = np.random.permutation(len(context_clips))
         context_clip_loader = get_clip_loader(context_clips[shuffled_idxs][:H], self.args.batch_size)
         task_embedding = self._get_task_embedding_with_lite(context_clip_loader, shuffled_idxs)
         self.feature_adapter_params = self._get_feature_adapter_params(task_embedding)
