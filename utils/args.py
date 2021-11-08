@@ -104,6 +104,10 @@ def parse_args(learner='default'):
     parser.add_argument("--print_by_step", action="store_true",
                         help="Print training by step (otherwise print by epoch).")
 
+    # heuristics parameters
+    parser.add_argument("--blur_heuristic", action="store_true",
+                        help="If True, samples least blurry images from support set to backprop.")
+
     # custom parameters
     parser.add_argument("--from_checkpoint", action="store_true",
                         help="Load from model_path an intermediate checkpoint (for testing).")
