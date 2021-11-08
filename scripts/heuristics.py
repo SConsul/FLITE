@@ -1,8 +1,12 @@
+# Imports
 import cv2
+import torch
 
+
+# Blur filter class
 class Blur:
     def __init__(self, inputs):
-        if type(inputs) == PyTorch_tensor:
+        if torch.is_tensor(inputs):
             self.images = inputs
         else:
             raise NotImplementedError('Does not support path inputs')
