@@ -110,8 +110,8 @@ class ORBITDataset(Dataset):
         :param object_videos: (dict::list::str) Dictionary of context and target video paths for an object.
         :return: (list::str, list::str) Sampled context and target video paths for given object according to self.context_type (clean) and self.target_type (clean/clutter).
         """ 
-        if self.context_type == "clean" and self.target_type == "clean": # context = clean; target = held-out clean
-            num_context_avail = len(object_videos[self.context_type])
+        num_context_avail = len(object_videos[self.context_type])
+        if (self.context_type == self.target_type) and (num_context_avail > 1): # context equals target and there are sufficient context samples
             split = min(5, num_context_avail-1) # minimum of 5 context, unless not enough then leave at least 1 target video and use remaining as context
             context = self.choose_videos(object_videos[self.context_type][:split], self.shot_context, self.shot_method_context, self.context_shot_cap)
             target = self.choose_videos(object_videos[self.context_type][split:], self.shot_target, self.shot_method_target, self.target_shot_cap)

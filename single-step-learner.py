@@ -150,7 +150,7 @@ class Learner:
                     losses.append(task_loss.detach())
 
                     # Log to tensorboard
-                    tensorboard_log(self.tensorboard_writer, task_loss, step, self.train_evaluator.get_current_stats())
+                    tensorboard_log(self.tensorboard_writer, task_loss, step * (epoch + 1), self.train_evaluator.get_current_stats())
                     
                     if self.args.print_by_step:
                         current_stats_str = stats_to_str(self.train_evaluator.get_current_stats())
