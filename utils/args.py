@@ -55,7 +55,7 @@ def parse_args(learner='default'):
                         help="If train/test_context_shot_method = specific/fixed, number of videos per object for target set (default: 2).")
     parser.add_argument("--with_train_shot_caps", action="store_true",
                         help="Caps videos per objects sampled in train tasks.")
-    parser.add_argument("--context_video_type", type=str, default='clean', choices=['clean'],
+    parser.add_argument("--context_video_type", type=str, default='clean', choices=['clean', 'clutter'],
                         help="Video type for context set (default: clean).")
     parser.add_argument("--target_video_type", type=str, default='clutter', choices=['clutter', 'clean'],
                         help="Video type for target set (default: clutter).")
