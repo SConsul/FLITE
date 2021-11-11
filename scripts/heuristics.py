@@ -19,7 +19,7 @@ class Blur:
         numpy_img = tensor_img.numpy()
         # Make channel dimension (currently 0) as 2
         numpy_img = np.transpose(numpy_img, (2, 1, 0))
-        gray_img = cv2.cvtColor(numpy_img, cv2.COLOR_BGR2GRAY)
+        gray_img = cv2.cvtColor(numpy_img, cv2.COLOR_RGB2GRAY)
         # Convert dtype to np.float64 or higher precision
         gray_img = gray_img.astype(np.float64)
         # Low blur score corresponds to more blur
@@ -43,5 +43,5 @@ class Blur:
         for tensor_clip in self.images:
             clip_blur_score = self.compute_clip_blur(tensor_clip)
             input_blur_list.append(clip_blur_score)
-        sorted_idxs = sorted(range(len(input_blur_list)), key=lambda i: input_blur_list[i], reverse=True)
+        sorted_idxs = sorted(range(len(input_blur_list)), key=lambda i: input_blur_list[i], reverse=False)
         return sorted_idxs
