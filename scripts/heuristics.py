@@ -1,8 +1,52 @@
 # Imports
+import os
 import cv2
+import json
 import torch
 import numpy as np
 
+
+# Bounding Box filter class
+class BBox:
+    def __init__(self, inputs, bbox_path):
+        # Inputs are paths (do not support tensors)
+        if isinstance(inputs, np.ndarray) is False:
+            raise NotImplementedError('Does not support tensor inputs')
+        self.paths = inputs
+        self.bbox_path = bbox_path
+
+    # Get bbox for frame
+    def get_frame_bbox(self, frame_path):
+        key_name = os.path.basename(frame_path)
+        file_name = key_name[:-10] + '.json'
+        file_path = os.path.join(self.bbox_path, file_name)
+        with open(file_path) as json_file:
+            json_data = json.load(json_file)
+        bbox = json_data[key_name]['object_bounding_box']
+        bbox = torch.tensor(bbox)
+        return bbox
+
+    # Get bboxes for clip
+    def get_clip_bbox(self, clip_path):
+        clip_bbox_list = list()
+        for frame_path in clip_path:
+            frame_bbox = self.get_frame_bbox(frame_path)
+            clip_bbox_list.append(frame_bbox)
+        clip_bbox = torch.tensor(clip_bbox_list)
+        return clip_bbox
+    
+    # Get bboxes for batch
+    def get_batch_bbox(self):
+        batch_bbox_list = list()
+        for clip_path in self.paths:
+            clip_bbox = self.get_clip_bbox(clip_path)
+            batch_bbox_list.append(clip_bbox)
+        batch_bbox = torch.tensor(batch_bbox_list)
+        return batch_bbox
+    
+    # Rank bboxes from biggest to smallest
+    def get_ranked_bbox_sizes(self):
+        pass
 
 # Blur filter class
 class Blur:
