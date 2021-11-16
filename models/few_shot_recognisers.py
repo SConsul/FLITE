@@ -437,7 +437,7 @@ class SingleStepFewShotRecogniser(FewShotRecogniser):
         elif self.args.bbox_heuristic:
             if self.args.bbox_path is None:
                 raise ValueError('--bbox_path argument cannot be None when --bbox_heuristic is used')
-            bbox_ranker = BBox(context_clips)
+            bbox_ranker = BBox(context_clips, self.args.bbox_path)
             shuffled_idxs = bbox_ranker.get_ranked_bbox_sizes()
         else:
             shuffled_idxs = np.random.permutation(len(context_clips))
