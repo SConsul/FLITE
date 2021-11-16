@@ -107,7 +107,10 @@ def test_bbox_heuristic():
     test_bbox_path = '../dataset/orbit_clutter_bounding_boxes'
     # Compute heuristic
     bbox_filter = BBox(test_paths, test_bbox_path)
-    print(bbox_filter.get_batch_bbox().shape)
+    bboxes = bbox_filter.get_batch_bbox()
+    ranked_idxs = bbox_filter.get_ranked_bbox_sizes()
+    print('BBoxes shape:', bboxes.shape)
+    print('Ranked idxs:', ranked_idxs)
 
 
 # Test blur heuristic
