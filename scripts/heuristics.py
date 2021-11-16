@@ -46,7 +46,18 @@ class BBox:
     
     # Rank bboxes from biggest to smallest
     def get_ranked_bbox_sizes(self):
-        pass
+        batch_bbox = self.get_batch_bbox()
+        batch_bbox_list = list()
+        for clip_bbox in batch_bbox:
+            clip_bbox_list = list()
+            for frame_bbox in clip_bbox:
+                frame_bbox_size = frame_bbox[2] * frame_bbox[3]
+                clip_bbox_list.append(frame_bbox_size)
+            clip_bbox_size = sum(clip_bbox_list) / len(clip_bbox_list)
+            batch_bbox_list.append(clip_bbox_size)
+        sorted_idxs = sorted(range(len(batch_bbox_list)), key=lambda i: batch_bbox_list[i], reverse=False)
+        return sorted_idxs
+        
 
 # Blur filter class
 class Blur:
