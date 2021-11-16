@@ -32,7 +32,7 @@ class BBox:
         for frame_path in clip_path:
             frame_bbox = self.get_frame_bbox(frame_path)
             clip_bbox_list.append(frame_bbox)
-        clip_bbox = torch.tensor(clip_bbox_list)
+        clip_bbox = torch.stack(clip_bbox_list)
         return clip_bbox
     
     # Get bboxes for batch
@@ -41,7 +41,7 @@ class BBox:
         for clip_path in self.paths:
             clip_bbox = self.get_clip_bbox(clip_path)
             batch_bbox_list.append(clip_bbox)
-        batch_bbox = torch.tensor(batch_bbox_list)
+        batch_bbox = torch.stack(batch_bbox_list)
         return batch_bbox
     
     # Rank bboxes from biggest to smallest
