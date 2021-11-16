@@ -43,7 +43,7 @@ from models.classifiers import LinearClassifier, VersaClassifier, PrototypicalCl
 from utils.optim import init_optimizer
 from utils.data import get_clip_loader
 
-from scripts.heuristics import Blur
+from scripts.heuristics import *
 
 class FewShotRecogniser(nn.Module):
     """
@@ -434,6 +434,11 @@ class SingleStepFewShotRecogniser(FewShotRecogniser):
         if self.args.blur_heuristic:
             blur_ranker = Blur(context_clips)
             shuffled_idxs = blur_ranker.get_ranked_blur_scores()
+        elif self.args.bbox_heuristic:
+            if self.args.bbox_path is None:
+                raise ValueError('--bbox_path argument cannot be None when --bbox_heuristic is used')
+            bbox_ranker = BBox(context_clips)
+            shuffled_idxs = bbox_ranker.get_ranked_bbox_sizes()
         else:
             shuffled_idxs = np.random.permutation(len(context_clips))
         context_clip_loader = get_clip_loader(context_clips[shuffled_idxs][:H], self.args.batch_size)

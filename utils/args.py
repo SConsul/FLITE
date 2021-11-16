@@ -107,6 +107,9 @@ def parse_args(learner='default'):
     # heuristics parameters
     parser.add_argument("--blur_heuristic", action="store_true",
                         help="If True, samples least blurry images from support set to backprop.")
+    parser.add_argument("--bbox_heuristic", action="store_true",
+                        help="If True, samples images with biggest bboxes from support set to backprop.")
+    parser.add_argument("--bbox_path", type=str, default=None, help="Path to directory with bboxes.")
 
     # custom parameters
     parser.add_argument("--from_checkpoint", action="store_true",
