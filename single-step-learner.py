@@ -61,7 +61,7 @@ class Learner:
         self.checkpoint_dir, self.logfile, self.checkpoint_path_validation, self.checkpoint_path_final \
             = get_log_files(self.args.checkpoint_dir, self.args.model_path)
         
-        self.tensorboard_writer = get_tensorboard_writer(self.args.log_dir)
+        self.tensorboard_writer, self.log_dir = get_tensorboard_writer(self.args.log_dir)
 
         print_and_log(self.logfile, "Options: %s\n" % self.args)
         print_and_log(self.logfile, "Checkpoint Directory: %s\n" % self.checkpoint_dir) 
@@ -301,6 +301,12 @@ class Learner:
                     target_video_logits = self.model.predict(target_video_clips)
                     self.test_evaluator.append(target_video_logits, target_video_labels)
 
+                    # allow test evaluation if using file paths and not tensors
+                    if self.args.save_test_performance and self.args.no_preload_clips:
+                        self.test_evaluator.append(target_video_logits, target_video_labels, target_video_clips)
+                    else:
+                        self.test_evaluator.append(target_video_logits, target_video_labels)
+
                 # reset task's params
                 self.model._reset()
                 # add task's ops to self.ops_counter
@@ -316,6 +322,11 @@ class Learner:
             mean_ops_stats = self.ops_counter.get_mean_stats()
             print_and_log(self.logfile, 'test [{0:}]\n per-user stats: {1:}\n per-video stats: {2:}\n model stats: {3:}\n'.format(path, stats_per_user_str, stats_per_video_str,  mean_ops_stats))
             evaluator_save_path = path if self.checkpoint_dir in path else self.checkpoint_dir
+
+            # allow test evaluation if using file paths and not tensors
+            if self.args.save_test_performance and self.args.no_preload_clips:
+                self.test_evaluator.save_test_performance(self.log_dir)
+
             self.test_evaluator.save(evaluator_save_path)
             self.test_evaluator.reset()
 

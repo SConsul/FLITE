@@ -5,6 +5,7 @@ import os
 import torch
 import math
 import numpy as np
+import pandas as pd
 
 class Evaluator():
     def __init__(self, stats_to_compute):
@@ -27,9 +28,19 @@ class Evaluator():
     :param probs: (np.ndarray) Predicted probabilities over classes for every frame in a clip (if train) or video (if validation/test).
     :return: (float) Average accuracy of a clip (if train) or video (if validation/test).
     """
-    def get_frame_accuracy(self, labels, probs):
+    def get_frame_accuracy(self, labels, probs, values=None, save_dir=None):
         predictions = np.argmax(probs, axis=-1)
         correct = np.equal(labels, predictions).astype(int)
+
+        # Save test performance values to csv
+        if values is not None and save_dir is not None:
+            test_results_df = pd.DataFrame({
+                'file_path': values.tolist(),
+                'prediction': predictions,
+                'true_label': labels,
+            })
+            test_results_df.to_csv(os.path.join(save_dir, "frame_acc.csv"), mode='a', index=False)
+
         return np.mean(correct)
     
     """
@@ -38,9 +49,19 @@ class Evaluator():
     :param probs: (np.ndarray) Predicted probabilities over classes for every frame in a video.
     :return: (float) Average accuracy of list of videos.
     """
-    def get_video_accuracy(self, labels, probs):
+    def get_video_accuracy(self, labels, probs, values=None, save_dir=None):
         predictions = self.get_video_prediction(probs)
         correct_videos = np.equal(labels, predictions).astype(int)
+
+        # Save test performance values to csv
+        if values is not None and save_dir is not None:
+            test_results_df = pd.DataFrame({
+                'file_path': values.tolist(),
+                'prediction': predictions,
+                'true_label': labels,
+            })
+            test_results_df.to_csv(os.path.join(save_dir, "video_acc.csv"), mode='a', index=False)
+
         return np.mean(correct_videos)
     
     """
@@ -104,6 +125,7 @@ class TestEvaluator(Evaluator):
 
         self.current_user = 0
         self.all_frame_probs, self.all_frame_labels = [[]], [[]]
+        self.all_frame_values = [[]]
     
     def save(self, path):
         if os.path.isfile(path):
@@ -114,6 +136,7 @@ class TestEvaluator(Evaluator):
     def reset(self):
         self.current_user = 0
         self.all_frame_probs, self.all_frame_labels = [[]], [[]]
+        self.all_frame_values = [[]]
     
     def get_mean_stats(self, current_user=False):
         
@@ -144,6 +167,20 @@ class TestEvaluator(Evaluator):
         # computes average score over all videos (pooled across users)
         video_stats = self.average_over_scores(video_scores) # video_scores: [user_1_video_1_mean, user_1_video_2_mean, ..., user_M_video_N_mean]
         return user_stats, video_stats
+    
+    def save_test_performance(self, save_dir):    
+        # Save test performance results 
+    
+        users_to_average = range(self.current_user)
+        for user in users_to_average:
+            user_frame_probs = self.all_frame_probs[user]
+            user_frame_labels = self.all_frame_labels[user]
+            user_video_labels = [vl[0] for vl in self.all_frame_labels[user]]
+            user_frame_values = self.all_frame_values[user]
+            
+            user_video_scores = [ self.get_frame_accuracy(l, p, v, save_dir) for (l,p, v) in zip(user_frame_labels, user_frame_probs, user_frame_values) ]
+
+            user_video_scores = [ self.get_video_accuracy(l, p, v, save_dir) for (l,p, v) in zip(user_video_labels, user_frame_probs, user_frame_values) ]
        
     def average_over_scores(self, user_stats):
 
@@ -158,14 +195,19 @@ class TestEvaluator(Evaluator):
         self.current_user += 1
         self.all_frame_labels.append([])
         self.all_frame_probs.append([])
+        self.all_frame_values.append([])
     
-    def append(self, test_logits, test_labels):
+    def append(self, test_logits, test_labels, test_values=None):
 
         frame_labels = test_labels.clone().cpu().numpy()
         frame_probs = torch.nn.functional.softmax(test_logits, dim=-1).detach().cpu().numpy()
 
         self.all_frame_labels[self.current_user].append(frame_labels)
         self.all_frame_probs[self.current_user].append(frame_probs) 
+
+        if test_values is not None:
+            frame_values = test_values.copy()
+            self.all_frame_values[self.current_user].append(frame_values)
     
 class ValidationEvaluator(TestEvaluator):
     def __init__(self, stats_to_compute):

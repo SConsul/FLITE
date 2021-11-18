@@ -53,7 +53,7 @@ def get_tensorboard_writer(log_dir):
 
     writer = tensorboard.SummaryWriter(log_dir=log_dir)
 
-    return writer
+    return writer, log_dir
 
 def tensorboard_log(writer, loss, step, current_stats):
     writer.add_scalar('loss/train', loss.item(), step)
