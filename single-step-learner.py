@@ -276,7 +276,10 @@ class Learner:
 
         if self.args.from_checkpoint:
             checkpoint = torch.load(path, map_location=self.map_location)
-            self.model.load_state_dict(checkpoint['model_state_dict'])
+            if 'model_state_dict' in checkpoint:
+                self.model.load_state_dict(checkpoint['model_state_dict'])
+            else:
+                self.model.load_state_dict(checkpoint)
         else:
             self.model.load_state_dict(torch.load(path, map_location=self.map_location))
 
