@@ -302,7 +302,6 @@ class Learner:
                 for target_video, target_labels in zip(cached_target_clips_by_video, cached_target_labels_by_video):
                     target_video_clips, target_video_labels = attach_frame_history(target_video, target_labels, self.args.clip_length)
                     target_video_logits = self.model.predict(target_video_clips)
-                    self.test_evaluator.append(target_video_logits, target_video_labels)
 
                     # allow test evaluation if using file paths and not tensors
                     if self.args.save_test_performance and self.args.no_preload_clips:
