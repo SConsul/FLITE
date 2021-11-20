@@ -55,7 +55,7 @@ class BBox:
                 clip_bbox_list.append(frame_bbox_size)
             clip_bbox_size = sum(clip_bbox_list) / len(clip_bbox_list)
             batch_bbox_list.append(clip_bbox_size)
-        sorted_idxs = sorted(range(len(batch_bbox_list)), key=lambda i: batch_bbox_list[i], reverse=False)
+        sorted_idxs = sorted(range(len(batch_bbox_list)), key=lambda i: batch_bbox_list[i], reverse=True)
         return sorted_idxs
         
 
@@ -91,8 +91,8 @@ class Blur:
         clip_blur = sum(clip_blur_list) / len(clip_blur_list)
         return clip_blur
     
-    # Returns idxs of clips in batch by decreasing order of blur score
-    # Therefore, first k clips in batch will be least blurry
+    # Returns idxs of clips in batch by increasing order of blur score
+    # Therefore, first k clips in batch will be most blurry
     def get_ranked_blur_scores(self):
         input_blur_list = list()
         for tensor_clip in self.images:
