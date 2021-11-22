@@ -174,7 +174,7 @@ class Learner:
                 self.save_checkpoint(epoch + 1)
 
                 # validate
-                if (epoch + 1) >= self.args.validation_on_epoch:
+                if (epoch + 1) % 2 == 0:
                     self.validate()
             
             # save the final model
