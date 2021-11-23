@@ -39,7 +39,7 @@ from feature_adapters import FilmAdapter, NullAdapter
 from models.poolers import MeanPooler
 from models.normalisation_layers import TaskNorm
 from models.set_encoder import SetEncoder, NullSetEncoder
-from models.classifiers import LinearClassifier, VersaClassifier, PrototypicalClassifier, MahalanobisClassifier
+from models.classifiers import LinearClassifier, VersaClassifier, PrototypicalClassifier, PrototypicalClassifierBBox, MahalanobisClassifier
 from utils.optim import init_optimizer
 from utils.data import get_clip_loader
 
@@ -93,6 +93,8 @@ class FewShotRecogniser(nn.Module):
             self.classifier = LinearClassifier(self.feature_extractor.output_size)
         elif self.args.classifier == 'versa':
             self.classifier = VersaClassifier(self.feature_extractor.output_size)
+        elif self.args.classifier == 'proto_bbox':
+            self.classifier = PrototypicalClassifierBBox()
         elif self.args.classifier == 'proto':
             self.classifier = PrototypicalClassifier()
         elif self.args.classifier == 'mahalanobis':
