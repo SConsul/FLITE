@@ -118,6 +118,8 @@ def parse_args(learner='default'):
                         help="Directory to save tensorboard logs to.")
     parser.add_argument("--save_test_performance", action='store_true',
                         help="Save test performance results.")
+    parser.add_argument("--bbox_train", action='store_true',
+                        help="Use multi-headed model and train with bbox losses.")              
 
     # specific parameters
     if learner == 'gradient-learner':

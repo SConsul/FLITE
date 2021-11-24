@@ -212,22 +212,40 @@ class Learner:
         self.model._cache_context_outputs(context_clips)
 
         task_loss = 0
-        target_clip_loader = get_clip_loader((target_clips, target_labels), self.args.batch_size, with_labels=True)
-        for batch_target_clips, batch_target_labels in target_clip_loader:
-            self.model.personalise_with_lite(context_clips, context_labels)
-            batch_target_clips = batch_target_clips.to(device=self.device)
-            batch_target_labels = batch_target_labels.to(device=self.device)
-            batch_target_logits = self.model.predict_a_batch(batch_target_clips)
-            self.train_evaluator.update_stats(batch_target_logits, batch_target_labels)
-           
-            loss_scaling = len(context_labels) / (self.args.num_lite_samples * self.args.tasks_per_batch)
-            batch_loss = loss_scaling * self.loss(batch_target_logits, batch_target_labels)
-            batch_loss += 0.001 * self.model.feature_adapter.regularization_term(switch_device=self.args.use_two_gpus) 
-            batch_loss.backward(retain_graph=False)
-            task_loss += batch_loss.detach()
+        target_clip_loader = get_clip_loader((target_clips, target_labels), self.args.batch_size, with_labels=True, with_bbox=self.args.bbox_train, bbox_path=self.args.bbox_path)
+        if self.args.bbox_train:
+            for batch_target_clips, batch_target_labels, batch_target_bbox in target_clip_loader:
+                self.model.personalise_with_lite(context_clips, context_labels)
+                batch_target_clips = batch_target_clips.to(device=self.device)
+                batch_target_labels = batch_target_labels.to(device=self.device)
+                batch_target_bbox = batch_target_bbox.to(device=self.device)
+                batch_target_logits = self.model.predict_a_batch(batch_target_clips)
+                self.train_evaluator.update_stats(batch_target_logits, batch_target_labels)
             
-            # reset task's params
-            self.model._reset()
+                loss_scaling = len(context_labels) / (self.args.num_lite_samples * self.args.tasks_per_batch)
+                batch_loss = loss_scaling * self.loss(batch_target_logits, batch_target_labels)
+                batch_loss += 0.001 * self.model.feature_adapter.regularization_term(switch_device=self.args.use_two_gpus) 
+                batch_loss.backward(retain_graph=False)
+                task_loss += batch_loss.detach()
+                
+                # reset task's params
+                self.model._reset()
+        else:
+            for batch_target_clips, batch_target_labels in target_clip_loader:
+                self.model.personalise_with_lite(context_clips, context_labels)
+                batch_target_clips = batch_target_clips.to(device=self.device)
+                batch_target_labels = batch_target_labels.to(device=self.device)
+                batch_target_logits = self.model.predict_a_batch(batch_target_clips)
+                self.train_evaluator.update_stats(batch_target_logits, batch_target_labels)
+            
+                loss_scaling = len(context_labels) / (self.args.num_lite_samples * self.args.tasks_per_batch)
+                batch_loss = loss_scaling * self.loss(batch_target_logits, batch_target_labels)
+                batch_loss += 0.001 * self.model.feature_adapter.regularization_term(switch_device=self.args.use_two_gpus) 
+                batch_loss.backward(retain_graph=False)
+                task_loss += batch_loss.detach()
+                
+                # reset task's params
+                self.model._reset()
 
         return task_loss
     
