@@ -182,7 +182,67 @@ class VersaClassifier(HeadClassifier):
 
         self.param_dict['weight'] = torch.cat(class_weight, dim=0)
         self.param_dict['bias'] = torch.reshape(torch.cat(class_bias, dim=1), [num_classes, ])
+
+class PrototypicalClassifierBBox(HeadClassifier):
+    """
+    Class for a ProtoNets classifier (https://github.com/jakesnell/prototypical-networks). Context features are averaged per class to obtain the weight parameters of a linear classification layer.
+    """
+    def __init__(self):
+        """
+        Creates instance of PrototypicalClassifier.
+        :return: Nothing.
+        """
+        super().__init__()
+        self.param_dict = {}
+        self.bbox_head = nn.Sequential(
+                            nn.Linear(1280, 128),
+                            nn.BatchNorm1d(128),
+                            nn.ReLU(),
+                            nn.Linear(128, 4)
+                        )
         
+    def predict(self, target_features):
+        """
+        Function that passes a batch of target features through linear classification layer to get logits over object classes for each feature.
+        :param target_features: (torch.Tensor) Batch of target features.
+        :return: (torch.Tensor) Logits over object classes for each target feature.
+        """ 
+        return F.linear(target_features, self.param_dict['weight'], self.param_dict['bias']), self.bbox_head(target_features)
+
+    def configure(self, context_features, context_labels, ops_counter=None):
+        """
+        Function that computes the per-class mean of context features and sets this as the class weight vector in a linear classification layer.
+        :param context_features: (torch.Tensor) Context features.
+        :param context_labels: (torch.Tensor) Corresponding class labels for context features.
+        :param ops_counter: (utils.OpsCounter or None) Object that counts operations performed.
+        :return: Nothing.
+        """
+        assert context_features.size(0) == context_labels.size(0), "context features and labels are different sizes!" 
+
+        class_rep_dict = self._build_class_reps(context_features, context_labels, ops_counter)
+        class_weight = []
+        class_bias = []
+
+        label_set = list(class_rep_dict.keys())
+        label_set.sort()
+        num_classes = len(label_set)
+        print("num classes", num_classes)
+        for class_num in label_set:
+            t1 = time.time()
+            # equation 8 from the prototypical networks paper
+            nu = class_rep_dict[class_num]
+            class_weight.append(2 * nu)
+            class_bias.append((-torch.matmul(nu, nu.t()))[None, None])
+            if ops_counter:
+                torch.cuda.synchronize()
+                ops_counter.log_time(time.time() - t1)
+                ops_counter.add_macs(nu.size(0) * nu.size(1)) # 2* in class weight
+                ops_counter.add_macs(nu.size(0)**2 * nu.size(1)) # matmul in  class bias
+                ops_counter.add_macs(nu.size(0) * nu.size(1)) # -1* in  class bias
+
+        self.param_dict['weight'] = torch.cat(class_weight, dim=0)
+        self.param_dict['bias'] = torch.reshape(torch.cat(class_bias, dim=1), [num_classes, ])
+
 class PrototypicalClassifier(HeadClassifier):
     """
     Class for a ProtoNets classifier (https://github.com/jakesnell/prototypical-networks). Context features are averaged per class to obtain the weight parameters of a linear classification layer.
