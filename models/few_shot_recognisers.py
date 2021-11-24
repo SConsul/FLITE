@@ -443,6 +443,7 @@ class SingleStepFewShotRecogniser(FewShotRecogniser):
             shuffled_idxs = bbox_ranker.get_ranked_bbox_sizes()
         else:
             shuffled_idxs = np.random.permutation(len(context_clips))
+        print("IN PERSONALIZE WITH LITE")
         context_clip_loader = get_clip_loader(context_clips[shuffled_idxs][:H], self.args.batch_size)
         task_embedding = self._get_task_embedding_with_lite(context_clip_loader, shuffled_idxs)
         self.feature_adapter_params = self._get_feature_adapter_params(task_embedding)
@@ -506,7 +507,7 @@ class SingleStepFewShotRecogniser(FewShotRecogniser):
         target_features = self._pool_features(target_features) 
         return self.classifier.predict(target_features) 
     
-    def predict_a_batch(self, target_clips):
+    def predict_a_batch(self, target_clips, target_bbox=None):
         """
         Function that processes a single batch of target clips to get logits over object classes for each clip.
         :param target_clips: (torch.Tensor) Tensor of target clips, each composed of self.args.clip_length contiguous frames.
@@ -514,4 +515,8 @@ class SingleStepFewShotRecogniser(FewShotRecogniser):
         """
         target_features = self._get_features(target_clips, self.feature_adapter_params)
         target_features = self._pool_features(target_features) 
-        return self.classifier.predict(target_features) 
+        
+        if target_bbox is not None:
+            return self.classifier.predict(target_features)
+    
+        return self.classifier.predict(target_features)

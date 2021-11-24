@@ -39,7 +39,7 @@ from data.dataloaders import DataLoader
 from models import SingleStepFewShotRecogniser
 from utils.args import parse_args
 from utils.ops_counter import OpsCounter
-from utils.optim import cross_entropy, init_optimizer
+from utils.optim import cross_entropy, init_optimizer, bbox_loss
 from utils.data import get_clip_loader, unpack_task, attach_frame_history
 from utils.logging import print_and_log, get_log_files, stats_to_str, get_tensorboard_writer, tensorboard_log
 from utils.eval_metrics import TrainEvaluator, ValidationEvaluator, TestEvaluator
@@ -82,6 +82,7 @@ class Learner:
         self.init_model()
         self.init_evaluators()
         self.loss = cross_entropy
+        self.bbox_loss_fn = bbox_loss
         self.train_task_fn = self.train_task_with_lite if self.args.with_lite else self.train_task
     
     def init_dataset(self):
@@ -132,7 +133,7 @@ class Learner:
         if self.args.mode == 'train' or self.args.mode == 'train_test':
             
             extractor_scale_factor=0.1 if self.args.pretrained_extractor_path else 1.0
-            self.optimizer = init_optimizer(self.model, self.args.learning_rate, extractor_scale_factor=extractor_scale_factor)
+            self.optimizer = init_optimizer(self.model, self.args.learning_rate, extractor_scale_factor=extractor_scale_factor, bbox_scale_factor=5.0, with_bbox=self.args.bbox_train)
             
             for epoch in range(self.args.epochs):
                 losses = []
@@ -219,12 +220,19 @@ class Learner:
                 batch_target_clips = batch_target_clips.to(device=self.device)
                 batch_target_labels = batch_target_labels.to(device=self.device)
                 batch_target_bbox = batch_target_bbox.to(device=self.device)
-                batch_target_logits = self.model.predict_a_batch(batch_target_clips)
+                print("PREDICT A BATCH")
+                batch_target_logits, batch_target_bbox_preds = self.model.predict_a_batch(batch_target_clips, batch_target_bbox)
+                print("PREDICTED BATCH")
                 self.train_evaluator.update_stats(batch_target_logits, batch_target_labels)
             
+                bbox_loss = self.bbox_loss_fn(batch_target_bbox_preds, batch_target_bbox)
+
+                print("BBOX LOSS")
+                print(bbox_loss)
+
                 loss_scaling = len(context_labels) / (self.args.num_lite_samples * self.args.tasks_per_batch)
-                batch_loss = loss_scaling * self.loss(batch_target_logits, batch_target_labels)
-                batch_loss += 0.001 * self.model.feature_adapter.regularization_term(switch_device=self.args.use_two_gpus) 
+                batch_loss = loss_scaling * (self.loss(batch_target_logits, batch_target_labels) + bbox_loss)
+                batch_loss += 0.001 * self.model.feature_adapter.regularization_term(switch_device=self.args.use_two_gpus)
                 batch_loss.backward(retain_graph=False)
                 task_loss += batch_loss.detach()
                 

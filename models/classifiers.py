@@ -226,7 +226,6 @@ class PrototypicalClassifierBBox(HeadClassifier):
         label_set = list(class_rep_dict.keys())
         label_set.sort()
         num_classes = len(label_set)
-        print("num classes", num_classes)
         for class_num in label_set:
             t1 = time.time()
             # equation 8 from the prototypical networks paper
