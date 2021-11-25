@@ -220,15 +220,11 @@ class Learner:
                 batch_target_clips = batch_target_clips.to(device=self.device)
                 batch_target_labels = batch_target_labels.to(device=self.device)
                 batch_target_bbox = batch_target_bbox.to(device=self.device)
-                print("PREDICT A BATCH")
-                batch_target_logits, batch_target_bbox_preds = self.model.predict_a_batch(batch_target_clips, batch_target_bbox)
-                print("PREDICTED BATCH")
+                batch_target_logits, batch_target_bbox_preds = self.model.predict_a_batch(batch_target_clips)
                 self.train_evaluator.update_stats(batch_target_logits, batch_target_labels)
             
-                bbox_loss = self.bbox_loss_fn(batch_target_bbox_preds, batch_target_bbox)
-
-                print("BBOX LOSS")
-                print(bbox_loss)
+                # Get bbox loss and scale by a factor of 1/20
+                bbox_loss = self.bbox_loss_fn(batch_target_bbox_preds, batch_target_bbox) * 0.05
 
                 loss_scaling = len(context_labels) / (self.args.num_lite_samples * self.args.tasks_per_batch)
                 batch_loss = loss_scaling * (self.loss(batch_target_logits, batch_target_labels) + bbox_loss)

@@ -58,7 +58,6 @@ class DatasetFromClipPathsBBox(Dataset):
                 json_data = json.load(json_file)
             x, y, w, h = json_data[key_name]['object_bounding_box']
             bbox = torch.tensor([float(x)*224.0/1080.0, float(y)*224.0/1080.0, float(w)*224.0/1080.0, float(h)*224.0/1080.0])
-            print(bbox)
             bbox_list.append(bbox)
 
         if self.with_labels:

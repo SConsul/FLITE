@@ -198,7 +198,7 @@ class PrototypicalClassifierBBox(HeadClassifier):
                             nn.Linear(1280, 128),
                             nn.BatchNorm1d(128),
                             nn.ReLU(),
-                            nn.Linear(128, 4)
+                            nn.Linear(128, 32)
                         )
         
     def predict(self, target_features):
@@ -207,7 +207,7 @@ class PrototypicalClassifierBBox(HeadClassifier):
         :param target_features: (torch.Tensor) Batch of target features.
         :return: (torch.Tensor) Logits over object classes for each target feature.
         """ 
-        return F.linear(target_features, self.param_dict['weight'], self.param_dict['bias']), self.bbox_head(target_features)
+        return F.linear(target_features, self.param_dict['weight'], self.param_dict['bias']), self.bbox_head(target_features).view(-1, 8, 4)
 
     def configure(self, context_features, context_labels, ops_counter=None):
         """
