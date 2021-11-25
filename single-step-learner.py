@@ -285,7 +285,14 @@ class Learner:
                 # loop through each target video
                 for target_video, target_labels in zip(cached_target_clips_by_video, cached_target_labels_by_video):
                     target_video_clips, target_video_labels = attach_frame_history(target_video, target_labels, self.args.clip_length)
-                    target_video_logits = self.model.predict(target_video_clips)
+
+                    target_video_logits = None
+                    target_video_bbox_preds = None
+                    if self.args.bbox_train:
+                        target_video_logits, target_video_bbox_preds = self.model.predict(target_video_clips)
+                    else:
+                        target_video_logits = self.model.predict(target_video_clips)
+
                     self.validation_evaluator.append(target_video_logits, target_video_labels)
 
                 # reset task's params
@@ -339,7 +346,12 @@ class Learner:
                 # loop through each target video
                 for target_video, target_labels in zip(cached_target_clips_by_video, cached_target_labels_by_video):
                     target_video_clips, target_video_labels = attach_frame_history(target_video, target_labels, self.args.clip_length)
-                    target_video_logits = self.model.predict(target_video_clips)
+                    target_video_logits = None
+                    target_video_bbox_preds = None
+                    if self.args.bbox_train:
+                        target_video_logits, target_video_bbox_preds = self.model.predict(target_video_clips)
+                    else:
+                        target_video_logits = self.model.predict(target_video_clips)
 
                     # allow test evaluation if using file paths and not tensors
                     if self.args.save_test_performance and self.args.no_preload_clips:
