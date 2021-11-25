@@ -155,7 +155,7 @@ class Learner:
                     
                     if self.args.print_by_step:
                         current_stats_str = stats_to_str(self.train_evaluator.get_current_stats())
-                        print_and_log(self.logfile, 'epoch [{}/{}][{}/{}], train loss: {:.7f}, {:}, bbox loss: {:.7f}, {:}, time/task: {:d}m{:02d}s'.format(epoch+1, self.args.epochs, step+1, total_steps, task_loss.item(), bbox_task_loss.item(), current_stats_str.strip(), int(task_time / 60), int(task_time % 60)))
+                        print_and_log(self.logfile, 'epoch [{}/{}][{}/{}], train loss: {:.7f}, bbox loss: {:.7f}, {:}, time/task: {:d}m{:02d}s'.format(epoch+1, self.args.epochs, step+1, total_steps, task_loss.item(), bbox_task_loss.item(), current_stats_str.strip(), int(task_time / 60), int(task_time % 60)))
 
                     if ((step + 1) % self.args.tasks_per_batch == 0) or (step == (total_steps - 1)):
                         self.optimizer.step()
