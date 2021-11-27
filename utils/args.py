@@ -119,7 +119,9 @@ def parse_args(learner='default'):
     parser.add_argument("--save_test_performance", action='store_true',
                         help="Save test performance results.")
     parser.add_argument("--bbox_train", action='store_true',
-                        help="Use multi-headed model and train with bbox losses.")              
+                        help="Use multi-headed model and train with bbox losses.")    
+    parser.add_argument("--bbox_attn", action="store_true",
+                        help="If True, applies deterministic attention using bboxes to images.")          
 
     # specific parameters
     if learner == 'gradient-learner':

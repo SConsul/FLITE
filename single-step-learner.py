@@ -215,7 +215,7 @@ class Learner:
 
         task_loss = 0
         bbox_task_loss = 0
-        target_clip_loader = get_clip_loader((target_clips, target_labels), self.args.batch_size, with_labels=True, with_bbox=self.args.bbox_train, bbox_path=self.args.bbox_path)
+        target_clip_loader = get_clip_loader((target_clips, target_labels), self.args.batch_size, with_labels=True, with_bbox=self.args.bbox_train, bbox_path=self.args.bbox_path, with_attn=self.args.bbox_attn)
         if self.args.bbox_train:
             for batch_target_clips, batch_target_labels, batch_target_bbox in target_clip_loader:
                 self.model.personalise_with_lite(context_clips, context_labels)
