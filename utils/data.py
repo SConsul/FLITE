@@ -7,6 +7,7 @@ import torch
 import numpy as np
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
+import cv2
 
 from data.transforms import orbit_transform
 
@@ -102,11 +103,10 @@ class DatasetFromClipPathsBBoxAttn(Dataset):
             x_right = int(x_center + width // 2)
             y_up = int(y_center - height // 2)
             y_down = int(y_center + height // 2)
-            clip_frame[:y_up, :] = torch.zeros(clip_frame[:y_up, :].shape)
-            clip_frame[y_down:, :] = torch.zeros(clip_frame[y_down:, :].shape)
-            clip_frame[:, :x_left] = torch.zeros(clip_frame[:, :x_left].shape)
-            clip_frame[:, x_right:] = torch.zeros(clip_frame[:, x_right:].shape)
-
+            clip_frame[:, :y_up, :] = torch.zeros(clip_frame[:, :y_up, :].shape)
+            clip_frame[:, y_down:, :] = torch.zeros(clip_frame[:, y_down:, :].shape)
+            clip_frame[:, :, :x_left] = torch.zeros(clip_frame[:, :, :x_left].shape)
+            clip_frame[:, :, x_right:] = torch.zeros(clip_frame[:, :, x_right:].shape)
             clip.append(clip_frame)
 
             
