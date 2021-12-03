@@ -155,7 +155,10 @@ class Learner:
                     
                     if self.args.print_by_step:
                         current_stats_str = stats_to_str(self.train_evaluator.get_current_stats())
-                        print_and_log(self.logfile, 'epoch [{}/{}][{}/{}], train loss: {:.7f}, bbox loss: {:.7f}, {:}, time/task: {:d}m{:02d}s'.format(epoch+1, self.args.epochs, step+1, total_steps, task_loss.item(), bbox_task_loss.item(), current_stats_str.strip(), int(task_time / 60), int(task_time % 60)))
+                        if self.args.bbox_train:
+                            print_and_log(self.logfile, 'epoch [{}/{}][{}/{}], train loss: {:.7f}, bbox loss: {:.7f}, {:}, time/task: {:d}m{:02d}s'.format(epoch+1, self.args.epochs, step+1, total_steps, task_loss.item(), bbox_task_loss.item(), current_stats_str.strip(), int(task_time / 60), int(task_time % 60)))
+                        else:
+                            print_and_log(self.logfile, 'epoch [{}/{}][{}/{}], train loss: {:.7f}, {:}, time/task: {:d}m{:02d}s'.format(epoch+1, self.args.epochs, step+1, total_steps, task_loss.item(), current_stats_str.strip(), int(task_time / 60), int(task_time % 60)))
 
                     if ((step + 1) % self.args.tasks_per_batch == 0) or (step == (total_steps - 1)):
                         self.optimizer.step()
@@ -218,7 +221,7 @@ class Learner:
         target_clip_loader = get_clip_loader((target_clips, target_labels), self.args.batch_size, with_labels=True, with_bbox=self.args.bbox_train, bbox_path=self.args.bbox_path, with_attn=self.args.bbox_attn)
         if self.args.bbox_train:
             for batch_target_clips, batch_target_labels, batch_target_bbox in target_clip_loader:
-                self.model.personalise_with_lite(context_clips, context_labels)
+                self.model.personalise_with_lite(context_clips, context_labels)        
                 batch_target_clips = batch_target_clips.to(device=self.device)
                 batch_target_labels = batch_target_labels.to(device=self.device)
                 batch_target_bbox = batch_target_bbox.to(device=self.device)
@@ -229,10 +232,6 @@ class Learner:
                 bbox_loss = self.bbox_loss_fn(batch_target_bbox_preds, batch_target_bbox) * 0.05
 
                 loss_scaling = len(context_labels) / (self.args.num_lite_samples * self.args.tasks_per_batch)
-
-                # batch_loss = loss_scaling * (self.loss(batch_target_logits, batch_target_labels) + bbox_loss)
-                # batch_loss += 0.001 * self.model.feature_adapter.regularization_term(switch_device=self.args.use_two_gpus)
-                # batch_loss.backward(retain_graph=False)
 
                 # Classifier loss
                 cls_loss = loss_scaling * self.loss(batch_target_logits, batch_target_labels)
